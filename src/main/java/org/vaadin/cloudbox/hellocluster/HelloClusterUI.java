@@ -16,15 +16,20 @@ import com.vaadin.ui.VerticalLayout;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import javax.servlet.annotation.WebInitParam;
 
 @Theme("valo")
 @SuppressWarnings("serial")
 @PreserveOnRefresh
 public class HelloClusterUI extends UI {
+
     private Label clickCounterLabel;
     private long clickCounter;
 
-    @WebServlet(value = "/*", asyncSupported = true)
+    @WebServlet(value = "/*", asyncSupported = true, initParams = {
+        @WebInitParam(name = "disable-xsrf-protection", value = "true"),
+        @WebInitParam(name = "syncIdCheck", value = "false")}
+    )
     @VaadinServletConfiguration(productionMode = false, ui = HelloClusterUI.class)
 
     public static class Servlet extends VaadinServlet {
@@ -36,7 +41,7 @@ public class HelloClusterUI extends UI {
         layout.setMargin(true);
         layout.setSpacing(true);
         setContent(layout);
-        
+
         layout.addComponent(new Label("Session id: " + request.getWrappedSession().getId()));
         layout.addComponent(new Label("Created: " + new Date()));
 
@@ -50,12 +55,12 @@ public class HelloClusterUI extends UI {
                 InetAddress h = getCurrentHost();
                 Notification.show("Greetings from " + h.getHostName() + " (" + h.getHostAddress() + ")");
                 clickCounter++;
-                clickCounterLabel.setValue("Clicks: "+clickCounter);
+                clickCounterLabel.setValue("Clicks: " + clickCounter);
             }
 
         });
         layout.addComponent(button);
-        layout.addComponent(clickCounterLabel = new Label("Clicks: "+clickCounter));        
+        layout.addComponent(clickCounterLabel = new Label("Clicks: " + clickCounter));
     }
 
     private InetAddress getCurrentHost() {
